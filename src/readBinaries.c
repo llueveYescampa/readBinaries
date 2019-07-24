@@ -81,15 +81,25 @@ int main(int argc, char *argv[])
 
     // reading vals vector (nnz) values //
     fseek(fh, offsetV[worldRank], SEEK_SET);
-    if ( !fread(vals, sizeof(real), (size_t) (nnz), fh)) exit(0);
+    if (sizeof(real) == sizeof(double)) {
+        if ( !fread(vals, sizeof(real), (size_t) (nnz), fh)) exit(0);
+    } else {
+        double *temp = (double *) malloc(nnz*sizeof(double)); 
+        if ( !fread(temp, sizeof(double), (size_t) (nnz), fh)) exit(0);
+        for (int i=0; i<nnz; i++) {
+            vals[i] = (real) temp[i];
+        } // end for //    
+        free(temp);
+    } // end if //
 
+/*
     for (int i=0; i<=n; ++i) {
         printf("%2d ",rows_Ptr[i]);
         if (i>0) printf(" this row has %4d non-zeros",  rows_Ptr[i] -rows_Ptr[i-1] );
         printf("\n");
     } // end for //
      printf("\n\n");
-
+*/
     
     for (int i=0; i<nnz; ++i) {
         printf("%d, %f\n",cols_Ptr[i], vals[i]);
